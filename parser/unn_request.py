@@ -1,18 +1,42 @@
 import aiohttp, asyncio, datetime
 
 class UnnRequest:
-    def __init__(self, login, password):
+    def __init__(self, login, tr = 1):
         self.login: str = login
-        self.psw: str = password
-        self.get_week_dates()
-        self.__new_format()
-        asyncio.run(self.get_ruz())
+        print(f'login: {self.login}')
+        if tr != 0:
+            self.get_week_dates()
+            self.__new_format()
+            asyncio.run(self.get_ruz())
+        else:
+            try:
+                self.get_week_dates()
+                self.__new_format()
+                asyncio.run(self.get_ruz())
+            except Exception as e:
+                print(f"[ERROR] string 16 {e}")
+
 
     def __new_format(self):
         student_number: int = int(self.login[1:])
         # self.format: str = f'https://portal.unn.ru/ruzapi/schedule/student/{student_number-24073692}?start={self.start_date}&finish={self.end_date}&lng=1'
         self.format: str = f'https://portal.unn.ru/ruzapi/schedule/student/{student_number - 24073692}?start=2024.12.09&finish=2024.12.15&lng=1'
         print(self.format)
+
+    def proverka_user(self):
+        try:
+            asyncio.run(self.get_ruz())
+
+            if self.json_response == []:
+                return False
+            else:
+                return True
+
+        except Exception as e:
+            print(e)
+            return False
+
+
 
 
     async def get_ruz(self):
