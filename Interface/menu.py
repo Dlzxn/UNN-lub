@@ -1,33 +1,29 @@
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
-                             QVBoxLayout, QHBoxLayout, QLineEdit, QWidget, QFrame, QMessageBox)
+                             QVBoxLayout, QHBoxLayout, QLineEdit, QWidget, QFrame, QMessageBox, QStackedLayout)
 from PyQt6.QtCore import Qt, QTimer, QDateTime
 from PyQt6.QtGui import QPixmap
 import sys
-import json
 import os
+import json
 
-class UniversityScheduleApp(QMainWindow):
+class UniversityApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Расписание Университета")
-        self.setFixedSize(1000, 800)
+        self.setWindowTitle("Личный кабинет студента ННГУ")
+        self.setFixedSize(1200, 800)
 
-        # Путь к теме и иконкам
+        # Путь к теме и кешу
         self.theme_path = os.path.join(os.path.dirname(__file__), "theme.json")
-        self.icon_path = os.path.join(os.path.dirname(__file__), "icon")
-
-        # Загружаем тему
+        self.cache_path = os.path.join(os.path.dirname(__file__), "cache", "user.json")
         self.dark_mode = self.load_theme()
 
-        # Центральный виджет и основной layout
+        self.main_layout = QStackedLayout()
         self.central_widget = QWidget()
+        self.central_widget.setLayout(self.main_layout)
         self.setCentralWidget(self.central_widget)
-        self.layout = QVBoxLayout()
-        self.central_widget.setLayout(self.layout)
 
-        # Загружаем данные пользователя
-        self.user_logged_in = False  # Симуляция проверки логина
-        self.initUI()
+        self.user_data = self.load_user_data()
+        self.init_ui()
 
     def load_theme(self):
         try:
@@ -36,10 +32,8 @@ class UniversityScheduleApp(QMainWindow):
                     data = json.load(f)
                     return data.get('theme', False)
             else:
-                self.show_error("Ошибка", "Файл с темой не найден.")
                 return False
-        except Exception as e:
-            self.show_error("Ошибка при загрузке темы", f"Произошла ошибка при загрузке темы: {str(e)}")
+        except Exception:
             return False
 
     def save_theme(self):
@@ -47,177 +41,168 @@ class UniversityScheduleApp(QMainWindow):
             with open(self.theme_path, 'w') as f:
                 json.dump({'theme': self.dark_mode}, f)
         except Exception as e:
-            self.show_error("Ошибка при сохранении темы", f"Не удалось сохранить тему: {str(e)}")
+            self.show_error("Ошибка", f"Не удалось сохранить тему: {str(e)}")
 
-    def initUI(self):
-        if self.user_logged_in:
-            self.show_main_menu()
+    def load_user_data(self):
+        try:
+            if os.path.exists(self.cache_path):
+                with open(self.cache_path, 'r') as f:
+                    return json.load(f)
+            else:
+                return None
+        except Exception:
+            return None
+
+    def save_user_data(self, username):
+        os.makedirs(os.path.dirname(self.cache_path), exist_ok=True)
+        with open(self.cache_path, 'w') as f:
+            json.dump({'username': username}, f)
+
+    def init_ui(self):
+        if self.user_data:
+            self.main_screen()
         else:
-            self.show_registration_screen()
+            self.registration_screen()
 
-    def show_registration_screen(self):
-        # Очищаем layout
-        self.clear_layout(self.layout)
-
-        # Layout регистрации
+    def registration_screen(self):
+        registration_widget = QWidget()
         registration_layout = QVBoxLayout()
         registration_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Логотип
+        # Логотип и заголовок
         logo_label = QLabel()
-        pixmap = QPixmap(os.path.join(self.icon_path, "unn_logo_blue_U.png"))
-        if pixmap.isNull():
-            self.show_error("Ошибка загрузки изображения", "Не удалось загрузить логотип.")
-        logo_label.setPixmap(pixmap)
-        logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        pixmap = QPixmap(os.path.join(os.path.dirname(__file__), "unn_logo.png"))
+        if not pixmap.isNull():
+            logo_label.setPixmap(pixmap)
+            logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         registration_layout.addWidget(logo_label)
 
-        # Название университета
-        university_label = QLabel("Университет Лобачевского")
-        university_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        university_label.setStyleSheet("font-size: 20px; font-weight: bold; padding: 10px;")
-        registration_layout.addWidget(university_label)
+        title_label = QLabel("Университет Лобачевского")
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title_label.setStyleSheet("font-size: 24px; font-weight: bold;")
+        registration_layout.addWidget(title_label)
 
-        # Поле ввода логина
-        self.login_input = QLineEdit()
-        self.login_input.setPlaceholderText("Введите логин")
-        self.login_input.setFixedWidth(300)
-        self.login_input.setStyleSheet("padding: 8px; border: 1px solid #ccc; border-radius: 5px;")
-        registration_layout.addWidget(self.login_input)
+        # Поле для логина
+        login_input = QLineEdit()
+        login_input.setPlaceholderText("Введите логин")
+        login_input.setFixedWidth(300)
+        login_input.setStyleSheet("padding: 10px; border: 1px solid #ccc; border-radius: 5px;")
+        self.login_input = login_input
+        registration_layout.addWidget(login_input, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Кнопка "Войти"
-        submit_button = QPushButton("Войти")
-        submit_button.setStyleSheet("padding: 10px; background-color: #0056b3; color: white; border: none; border-radius: 5px;")
-        submit_button.clicked.connect(self.check_login)
-        registration_layout.addWidget(submit_button)
+        login_button = QPushButton("Войти")
+        login_button.setStyleSheet(
+            "padding: 10px; background-color: #0056b3; color: white; border: none; border-radius: 5px;")
+        login_button.clicked.connect(self.check_login)
+        registration_layout.addWidget(login_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.layout.addLayout(registration_layout)
+        registration_widget.setLayout(registration_layout)
+        self.main_layout.addWidget(registration_widget)
 
-    def show_main_menu(self):
-        # Очищаем layout
-        self.clear_layout(self.layout)
+    def check_login(self):
+        username = self.login_input.text()
+        if username:  # Проверка должна быть реализована вашей функцией
+            self.save_user_data(username)
+            self.main_screen()
+        else:
+            self.show_error("Ошибка", "Введите корректный логин.")
 
-        # Основной layout
+    def main_screen(self):
+        main_widget = QWidget()
         main_layout = QVBoxLayout()
-        main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        # Шапка с логотипом и временем
+        # Верхняя панель
         header_layout = QHBoxLayout()
 
-        # Логотип справа
+        # Логотип
         logo_label = QLabel()
-        pixmap = QPixmap(os.path.join(self.icon_path, "unn_logo_blue_U.png"))
-        if pixmap.isNull():
-            self.show_error("Ошибка загрузки изображения", "Не удалось загрузить логотип.")
-        logo_label.setPixmap(pixmap)
-        logo_label.setFixedSize(50, 50)
-        header_layout.addWidget(logo_label, alignment=Qt.AlignmentFlag.AlignRight)
+        pixmap = QPixmap(os.path.join(os.path.dirname(__file__), "unn_logo.png"))
+        if not pixmap.isNull():
+            logo_label.setPixmap(pixmap)
+            logo_label.setFixedSize(50, 50)
+        header_layout.addWidget(logo_label)
 
-        main_layout.addLayout(header_layout)
-
-        # Панель времени
-        time_bar = QLabel()
-        time_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        time_bar.setStyleSheet("font-size: 24px; font-weight: bold; padding: 10px;")
-        self.time_bar = time_bar
+        # Время
+        time_label = QLabel()
+        time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        time_label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        self.time_label = time_label
         self.update_time()
-        main_layout.addWidget(time_bar)
 
-        # Таймер для обновления времени каждую секунду
+        # Таймер для обновления времени
         timer = QTimer(self)
         timer.timeout.connect(self.update_time)
         timer.start(1000)
 
-        # Основное содержимое
-        schedule_frame = QFrame()
-        schedule_frame.setStyleSheet(self.get_schedule_frame_style())
-        schedule_frame.setFixedSize(900, 600)
+        header_layout.addWidget(time_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        # Кнопка переключения темы
+        theme_button = QPushButton("Тема")
+        theme_button.setStyleSheet("padding: 5px; margin: 5px;")
+        theme_button.clicked.connect(self.toggle_theme)
+        header_layout.addWidget(theme_button, alignment=Qt.AlignmentFlag.AlignRight)
+
+        main_layout.addLayout(header_layout)
+
+        # Расписание
+        schedule_frame = QFrame()
+        schedule_frame.setStyleSheet("background-color: #f9f9f9; border-radius: 10px;")
         schedule_layout = QVBoxLayout()
-        schedule_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         schedule_frame.setLayout(schedule_layout)
 
-        # Кнопки для дней недели
+        self.day_buttons = []
         for day in ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]:
             day_button = QPushButton(day)
-            day_button.setStyleSheet(self.get_day_button_style())
-            day_button.setFixedSize(800, 60)
-            day_button.clicked.connect(lambda checked, d=day: self.show_day_details(d, schedule_layout))
+            day_button.setStyleSheet(
+                "padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 5px; background-color: #f0f8ff;")
+            day_button.clicked.connect(lambda checked, d=day: self.show_day_schedule(d))
+            self.day_buttons.append(day_button)
             schedule_layout.addWidget(day_button)
 
-        main_layout.addWidget(schedule_frame, alignment=Qt.AlignmentFlag.AlignCenter)
+        main_layout.addWidget(schedule_frame)
+        main_widget.setLayout(main_layout)
+        self.main_layout.addWidget(main_widget)
+        self.main_layout.setCurrentWidget(main_widget)
 
-        self.layout.addLayout(main_layout)
+    def show_day_schedule(self, day):
+        self.clear_schedule()
+        for btn in self.day_buttons:
+            btn.setStyleSheet(
+                "padding: 10px; margin: 5px; border: 1px solid #ddd; border-radius: 5px; background-color: #f0f8ff;")
 
-    def show_day_details(self, day, layout):
-        # Очищаем layout перед показом деталей
-        self.clear_layout(layout)
+        selected_button = next(btn for btn in self.day_buttons if btn.text() == day)
+        selected_button.setStyleSheet(
+            "padding: 10px; margin: 5px; border: 1px solid #0056b3; border-radius: 5px; background-color: #cfe2ff;")
 
-        # Отображаем расписание для выбранного дня
-        day_label = QLabel(f"Расписание на {day}")
-        day_label.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
-        layout.addWidget(day_label)
-
-        # Поля для расписания
-        fields = ["Название:", "Время:", "Преподаватель:", "Аудитория:"]
+        details_layout = QVBoxLayout()
+        fields = ["Предмет: Математика", "Время: 10:00 - 11:30", "Аудитория: 101", "Преподаватель: Иванов И.И."]
         for field in fields:
             field_label = QLabel(field)
-            field_label.setStyleSheet(self.get_field_label_style())
-            layout.addWidget(field_label)
+            field_label.setStyleSheet("font-size: 16px; margin: 5px; padding: 5px;")
+            details_layout.addWidget(field_label)
 
-        # Кнопка "Назад"
-        back_button = QPushButton("Назад к расписанию")
-        back_button.setStyleSheet("padding: 10px; background-color: #0056b3; color: white; border: none; border-radius: 5px;")
-        back_button.clicked.connect(self.show_main_menu)
-        layout.addWidget(back_button)
+        selected_button.setLayout(details_layout)
 
-    def check_login(self):
-        # Симуляция проверки логина
-        if self.login_input.text():
-            self.user_logged_in = True
-            self.show_main_menu()
-        else:
-            self.show_error("Ошибка логина", "Пожалуйста, введите логин.")
+    def clear_schedule(self):
+        for btn in self.day_buttons:
+            btn.setLayout(None)
 
     def update_time(self):
-        current_datetime = QDateTime.currentDateTime().toString("dddd, dd MMMM yyyy HH:mm:ss")
-        self.time_bar.setText(current_datetime)
+        current_time = QDateTime.currentDateTime().toString("dddd, dd MMMM yyyy HH:mm:ss")
+        self.time_label.setText(current_time)
 
     def toggle_theme(self):
         self.dark_mode = not self.dark_mode
         self.save_theme()
-        self.setStyleSheet(self.get_app_style())
-        self.show_main_menu()
+        self.update_theme()
 
-    def get_app_style(self):
-        if self.dark_mode:
-            return "background-color: #2e2e2e; color: white;"
-        return "background-color: white; color: black;"
-
-    def get_schedule_frame_style(self):
-        if self.dark_mode:
-            return "background-color: #444; border-radius: 15px;"
-        return "background-color: white; border-radius: 15px;"
-
-    def get_day_button_style(self):
-        if self.dark_mode:
-            return "padding: 10px; border: 1px solid #666; border-radius: 5px; background-color: #555; color: white;"
-        return "padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f0f8ff;"
-
-    def get_field_label_style(self):
-        if self.dark_mode:
-            return "margin: 5px; padding: 10px; border: 1px solid #666; border-radius: 5px; background-color: #333; color: white;"
-        return "margin: 5px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background-color: #f9f9f9;"
-
-    def clear_layout(self, layout):
-        while layout.count():
-            child = layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+    def update_theme(self):
+        style = "background-color: #2e2e2e; color: white;" if self.dark_mode else "background-color: white; color: black;"
+        self.setStyleSheet(style)
 
     def show_error(self, title, message):
-        # Выводим ошибку на экран
-        msg = QMessageBox(self)
+        msg = QMessageBox()
         msg.setIcon(QMessageBox.Icon.Critical)
         msg.setText(message)
         msg.setWindowTitle(title)
@@ -225,7 +210,6 @@ class UniversityScheduleApp(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = UniversityScheduleApp()
-    window.setStyleSheet(window.get_app_style())
+    window = UniversityApp()
     window.show()
     sys.exit(app.exec())

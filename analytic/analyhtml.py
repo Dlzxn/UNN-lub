@@ -1,19 +1,17 @@
 from bs4 import BeautifulSoup
+import json
 
 class AnalyticHtml:
-    def __init__(self, req):
-        self.request = req
-        self.__inizial_soup()
+    def __init__(self):
+        self.load()
+        # self.__inizial_soup()
 
-    def __inizial_soup(self):
-        self.soup = BeautifulSoup(self.request, 'html.parser')
-        self.__account_info()
-        self.__ruz()
 
-    def __account_info(self):
-        self.name = self.soup.find('span', class_='user-name').text
+    def load(self):
+        with open('../bd/rasp.json', 'r', encoding='utf-8') as f:
+            self.data = json.load(f)
+            print(self.data)
 
-    def __ruz(self):
-        self.rasp = self.soup.find('span', class_='ng-star-inserted')
-        print(self.rasp)
 
+
+a = AnalyticHtml()

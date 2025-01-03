@@ -5,6 +5,7 @@ class JsonMigration():
 
     def __init__(self, info = None):
         self.info = info
+        self.json_dump()
 
 
     def __get__(self, instance, owner):
@@ -23,7 +24,8 @@ class JsonMigration():
         :return: None
         """
         try:
-            with open("../rasp.json", "w") as file:
+            with open("../bd/rasp.json", "w") as file:
+                print("rasp.json openned")
                 json.dump(self.info, file)
                 file.close()
                 print('[INFO] - DUMP is ready!')
@@ -36,3 +38,6 @@ class JsonMigration():
         try:
             with open("../rasp.json", "r") as file:
                 self.info = json.load(file)
+
+        except Exception as err:
+            print(f"[ERROR] {err}")
