@@ -19,6 +19,7 @@ class UniversityApp(QMainWindow):
         self.theme_path = os.path.join(os.path.dirname(__file__), "theme.json")
         self.cache_path = os.path.join(os.path.dirname(__file__), "cache", "user.json")
         self.dark_mode = self.load_theme()
+        self.update_theme()
 
         self.main_layout = QStackedLayout()
         self.central_widget = QWidget()
@@ -73,7 +74,8 @@ class UniversityApp(QMainWindow):
         registration_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Устанавливаем всегда светлую тему для экрана регистрации
-        registration_widget.setStyleSheet("background-color: #029ee0; color: black;")
+        registration_widget.setStyleSheet(self.get_theme_style())
+
 
         # Логотип и заголовок
         logo_label = QLabel()
@@ -115,6 +117,7 @@ class UniversityApp(QMainWindow):
         if self.log.proverka_user():  # Проверка реализуется в validate_login
             self.save_user_data(username)
             self.main_screen()
+            # self.user =
             self.unset_loading_cursor()
         else:
             self.show_error("Ошибка", "Неверный логин. Попробуйте снова.")
@@ -127,6 +130,15 @@ class UniversityApp(QMainWindow):
         return username in allowed_users
 
     def main_screen(self):
+        self.set_loading_cursor()
+        try:
+            with open("cache/user.json", 'r') as file:
+                data = json.load(file)
+                self.u = UnnRequest(data['username'])
+        except Exception as er:
+            print(f"[ERROR] Enternet Connection Error: {er}")
+        self.unset_loading_cursor()
+
         main_widget = QWidget()
         main_layout = QVBoxLayout()
 
@@ -159,6 +171,8 @@ class UniversityApp(QMainWindow):
         theme_button = QPushButton("Тема")
         theme_button.setStyleSheet("padding: 5px; margin: 5px; background-color: #f0f8ff; color: #0056b3; border: none;")
         theme_button.clicked.connect(self.toggle_theme)
+
+
         header_layout.addWidget(theme_button, alignment=Qt.AlignmentFlag.AlignRight)
 
         main_layout.addLayout(header_layout)
@@ -168,7 +182,7 @@ class UniversityApp(QMainWindow):
         schedule_frame.setWidgetResizable(True)
         schedule_content = QWidget()
         schedule_layout = QVBoxLayout()
-        schedule_layout.setSpacing(10)  # Уменьшенное расстояние между элементами
+        schedule_layout.setSpacing(5)  # Уменьшенное расстояние между элементами
         schedule_content.setLayout(schedule_layout)
         schedule_frame.setWidget(schedule_content)
 
@@ -186,6 +200,7 @@ class UniversityApp(QMainWindow):
         main_widget.setLayout(main_layout)
         self.main_layout.addWidget(main_widget)
         self.main_layout.setCurrentWidget(main_widget)
+        self.update_theme()
 
     def show_day_schedule(self, day):
         day_schedule_widget = QWidget()
@@ -258,6 +273,12 @@ class UniversityApp(QMainWindow):
         self.main_layout.addWidget(day_schedule_widget)
         self.main_layout.setCurrentWidget(day_schedule_widget)
 
+    def get_theme_style(self):
+        if self.dark_mode:
+            return "background-color: #3a3a3a; color: white;"
+        else:
+            return "background-color: white; color: black;"
+
     def add_schedule_items(self, layout, subjects):
         for subject in subjects:
             print("subject:", subject)
@@ -274,7 +295,6 @@ class UniversityApp(QMainWindow):
             subject_widget.setLayout(subject_layout)
             layout.addWidget(subject_widget)
 
-
     def update_time(self):
         current_time = QDateTime.currentDateTime().toString("dddd, dd MMMM yyyy HH:mm:ss")
         self.time_label.setText(current_time)
@@ -285,10 +305,11 @@ class UniversityApp(QMainWindow):
         self.update_theme()
 
     def update_theme(self):
-        if self.dark_mode:
-            self.setStyleSheet("background-color: #3a3a3a; color: white;")
-        else:
-            self.setStyleSheet("background-color: white; color: black;")
+        if hasattr(self, 'main_layout') and self.main_layout.currentWidget() is not None:
+            if self.dark_mode:
+                self.main_layout.currentWidget().setStyleSheet("background-color: #3a3a3a; color: white;")
+            else:
+                self.main_layout.currentWidget().setStyleSheet("background-color: white; color: black;")
 
     def show_error(self, title, message):
         msg = QMessageBox()

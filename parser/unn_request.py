@@ -1,20 +1,18 @@
 import aiohttp, asyncio, datetime
 
+from cashe.migration.json_migration import JsonMigration
+
 class UnnRequest:
     def __init__(self, login, tr = 1):
         self.login: str = login
         print(f'login: {self.login}')
-        if tr != 0:
+
+        try:
             self.get_week_dates()
             self.__new_format()
             asyncio.run(self.get_ruz())
-        else:
-            try:
-                self.get_week_dates()
-                self.__new_format()
-                asyncio.run(self.get_ruz())
-            except Exception as e:
-                print(f"[ERROR] string 16 {e}")
+        except Exception as e:
+            print(f"[ERROR] string 16 {e}")
 
 
     def __new_format(self):
@@ -45,6 +43,7 @@ class UnnRequest:
                 print(await response.text(), "fffff")
                 print("RESPONCE")
                 self.json_response = await response.json()
+                self.us = JsonMigration(self.json_response)
 
 
     def get_week_dates(self):
