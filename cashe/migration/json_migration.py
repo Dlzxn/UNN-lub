@@ -1,43 +1,50 @@
 import json
+import os
+import sys
 
+def resource_path(relative_path):
+    """Получить путь к ресурсу, работает как в упакованном, так и в обычном режиме"""
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 class JsonMigration():
 
-    def __init__(self, info = None):
+    def __init__(self, info=None):
         self.info = info
         self.json_dump()
 
-
     def __get__(self, instance, owner):
         """
-        Magic function For get attribute___LOG [INFO]
+        Magic function for getting attribute
         :param instance:
         :param owner:
-        :return: attribute Class
+        :return: attribute of the class
         """
         print(f"[INFO] You get {instance}")
 
-
     def json_dump(self):
         """
-        Dump info about useer
+        Dump info about the user to a JSON file
         :return: None
         """
         try:
-            with open("bd/rasp.json", "w") as file:
-                print("rasp.json openned")
+            file_path = resource_path("bd/rasp.json")
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)  # Создать папки, если их нет
+            with open(file_path, "w") as file:
+                print("rasp.json opened")
                 json.dump(self.info, file)
-                file.close()
                 print('[INFO] - DUMP is ready!')
-
         except Exception as err:
             print(f"[ERROR] {err}")
 
-
     def json_load(self):
+        """
+        Load info from a JSON file
+        :return: None
+        """
         try:
-            with open("bd/rasp.json", "r") as file:
+            file_path = resource_path("bd/rasp.json")
+            with open(file_path, "r") as file:
                 self.info = json.load(file)
-
         except Exception as err:
             print(f"[ERROR] {err}")

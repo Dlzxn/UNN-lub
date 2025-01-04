@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
                              QVBoxLayout, QHBoxLayout, QLineEdit, QWidget, QFrame, QMessageBox, QStackedLayout, QScrollArea, QComboBox)
 from PyQt6.QtCore import Qt, QTimer, QDateTime
-from PyQt6.QtGui import QPixmap, QCursor
+from PyQt6.QtGui import QPixmap, QCursor, QIcon
 import sys
 import os
 import json
@@ -9,15 +9,22 @@ import json
 from parser.unn_request import UnnRequest
 from analytic.analyhtml import AnalyticHtml
 
+def resource_path(relative_path):
+    """Получить путь к ресурсу, работает как в упакованном, так и в обычном режиме"""
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
 class UniversityApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Личный кабинет студента ННГУ")
         self.setFixedSize(1200, 800)
 
+        self.setWindowIcon(QIcon(resource_path("icon/unn.png")))
+
         # Путь к теме и кешу
-        self.theme_path = os.path.join(os.path.dirname(__file__), "theme.json")
-        self.cache_path = os.path.join(os.path.dirname(__file__), "user.json")
+        self.theme_path = resource_path("theme.json")
+        self.cache_path = resource_path("user.json")
         self.dark_mode = self.load_theme()
         self.update_theme()
 
@@ -76,10 +83,9 @@ class UniversityApp(QMainWindow):
         # Устанавливаем всегда светлую тему для экрана регистрации
         registration_widget.setStyleSheet("background-color: #2072c9; color: white;")
 
-
         # Логотип и заголовок
         logo_label = QLabel()
-        pixmap = QPixmap(os.path.join(os.path.dirname(__file__), "icon/unn_logo.png"))
+        pixmap = QPixmap(resource_path("icon/unn_logo.png"))
         if not pixmap.isNull():
             logo_label.setPixmap(pixmap)
             logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -139,7 +145,7 @@ class UniversityApp(QMainWindow):
     def main_screen(self):
         self.set_loading_cursor()
         try:
-            with open("Interface/user.json", 'r') as file:
+            with open(resource_path("Interface/user.json"), 'r') as file:
                 data = json.load(file)
                 self.u = UnnRequest(data['username'])
         except Exception as er:
@@ -154,7 +160,7 @@ class UniversityApp(QMainWindow):
 
         # Логотип
         logo_label = QLabel()
-        pixmap = QPixmap(os.path.join(os.path.dirname(__file__), "icon/unn_logo.png"))
+        pixmap = QPixmap(resource_path("icon/unn_logo.png"))
         if not pixmap.isNull():
             logo_label.setPixmap(pixmap)
             logo_label.setFixedSize(50, 50)
@@ -239,19 +245,6 @@ class UniversityApp(QMainWindow):
         analys =  AnalyticHtml()
         schedule_data = analys.set_slovar()
         print("shedule:", schedule_data)
-        # schedule_data = {
-        #     "Пн": [
-        #         {"День": "Понедельник", "Название": "Математика", "Преподаватель": "Иванов И.И.", "Аудитория": "101",
-        #          "Время": "10:00 - 11:30"},
-        #         {"День": "Понедельник", "Название": "Физика", "Преподаватель": "Петров П.П.", "Аудитория": "202",
-        #          "Время": "12:00 - 13:30"}
-        #     ],
-        #     "Вт": [
-        #         {"День": "Вторник", "Название": "Химия", "Преподаватель": "Сидоров С.С.", "Аудитория": "303",
-        #          "Время": "14:00 - 15:30"}
-        #     ]
-            # Добавьте остальные дни недели
-        # }
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -272,7 +265,6 @@ class UniversityApp(QMainWindow):
                 days = "Сб"
             case "Воскресенье":
                 days  = "Вс"
-
 
         # Добавляем предметы для выбранного дня
         if days in schedule_data:
@@ -381,4 +373,3 @@ class UniversityApp(QMainWindow):
         dev_widget.setLayout(dev_layout)
         self.main_layout.addWidget(dev_widget)
         self.main_layout.setCurrentWidget(dev_widget)
-
