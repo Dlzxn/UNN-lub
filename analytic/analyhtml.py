@@ -10,7 +10,7 @@ class AnalyticHtml:
 
 
     def load(self):
-        with open('../bd/rasp.json', 'r', encoding='utf-8') as f:
+        with open('bd/rasp.json', 'r', encoding='utf-8') as f:
             self.data = json.load(f)
             print(self.data)
 

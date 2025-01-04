@@ -17,7 +17,7 @@ class UniversityApp(QMainWindow):
 
         # Путь к теме и кешу
         self.theme_path = os.path.join(os.path.dirname(__file__), "theme.json")
-        self.cache_path = os.path.join(os.path.dirname(__file__), "cache", "user.json")
+        self.cache_path = os.path.join(os.path.dirname(__file__), "user.json")
         self.dark_mode = self.load_theme()
         self.update_theme()
 
@@ -74,7 +74,7 @@ class UniversityApp(QMainWindow):
         registration_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Устанавливаем всегда светлую тему для экрана регистрации
-        registration_widget.setStyleSheet(self.get_theme_style())
+        registration_widget.setStyleSheet("background-color: #2072c9; color: white;")
 
 
         # Логотип и заголовок
@@ -102,6 +102,7 @@ class UniversityApp(QMainWindow):
         login_button = QPushButton("Войти")
         login_button.setStyleSheet(
             "padding: 10px; background-color: #0056b3; color: white; border: none; border-radius: 5px;")
+        self.key = False
         login_button.clicked.connect(self.check_login)
         registration_layout.addWidget(login_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -117,11 +118,10 @@ class UniversityApp(QMainWindow):
         if self.log.proverka_user():  # Проверка реализуется в validate_login
             self.save_user_data(username)
             self.main_screen()
-            # self.user =
             self.unset_loading_cursor()
         else:
             self.show_error("Ошибка", "Неверный логин. Попробуйте снова.")
-            self.registration_screen()
+            self.login_input.clear()  # Очищаем только поле логина, без пересоздания экрана
             self.unset_loading_cursor()
 
     def validate_login(self, username):
@@ -129,10 +129,17 @@ class UniversityApp(QMainWindow):
         allowed_users = ["user1", "user2", "student"]  # Пример списка разрешенных логинов
         return username in allowed_users
 
+    def delete_user_data(self):
+        try:
+            if os.path.exists(self.cache_path):
+                os.remove(self.cache_path)
+        except Exception as e:
+            self.show_error("Ошибка", f"Не удалось удалить данные пользователя: {str(e)}")
+
     def main_screen(self):
         self.set_loading_cursor()
         try:
-            with open("cache/user.json", 'r') as file:
+            with open("Interface/user.json", 'r') as file:
                 data = json.load(file)
                 self.u = UnnRequest(data['username'])
         except Exception as er:
@@ -169,11 +176,18 @@ class UniversityApp(QMainWindow):
 
         # Кнопка переключения темы
         theme_button = QPushButton("Тема")
-        theme_button.setStyleSheet("padding: 5px; margin: 5px; background-color: #f0f8ff; color: #0056b3; border: none;")
+        theme_button.setStyleSheet("padding: 5px; margin: 5px; color: white; border: none;")
         theme_button.clicked.connect(self.toggle_theme)
 
 
         header_layout.addWidget(theme_button, alignment=Qt.AlignmentFlag.AlignRight)
+
+        # Кнопка DEV
+        dev_button = QPushButton("DEV")
+        dev_button.setStyleSheet("padding: 5px; margin: 5px; background-color: #ffa500; color: white; border: none;")
+        dev_button.clicked.connect(self.show_dev_info)
+        header_layout.addWidget(dev_button, alignment=Qt.AlignmentFlag.AlignRight)
+
 
         main_layout.addLayout(header_layout)
 
@@ -194,6 +208,11 @@ class UniversityApp(QMainWindow):
 
             schedule_layout.addWidget(day_button)
 
+        # Кнопка выхода из профиля
+        logout_button = QPushButton("Выход")
+        logout_button.setStyleSheet("padding: 5px; margin: 5px; background-color: #d9534f; color: white; border: none;")
+        logout_button.clicked.connect(self.logout_user)
+        header_layout.addWidget(logout_button, alignment=Qt.AlignmentFlag.AlignRight)
 
 
         main_layout.addWidget(schedule_frame)
@@ -201,6 +220,11 @@ class UniversityApp(QMainWindow):
         self.main_layout.addWidget(main_widget)
         self.main_layout.setCurrentWidget(main_widget)
         self.update_theme()
+
+    def logout_user(self):
+        self.delete_user_data()
+        self.registration_screen()
+        self.main_layout.setCurrentWidget(self.main_layout.widget(self.main_layout.count() - 1))
 
     def show_day_schedule(self, day):
         day_schedule_widget = QWidget()
@@ -261,7 +285,7 @@ class UniversityApp(QMainWindow):
         scroll_content.setLayout(scroll_layout)
         scroll_area.setWidget(scroll_content)
         day_schedule_layout.addWidget(scroll_area)
-        scroll_area.setFixedHeight(600)
+        scroll_area.setFixedHeight(800)
 
         # Кнопка возврата
         back_button = QPushButton("Назад")
@@ -307,9 +331,9 @@ class UniversityApp(QMainWindow):
     def update_theme(self):
         if hasattr(self, 'main_layout') and self.main_layout.currentWidget() is not None:
             if self.dark_mode:
-                self.main_layout.currentWidget().setStyleSheet("background-color: #3a3a3a; color: white;")
+                self.main_layout.currentWidget().setStyleSheet("background-color: #434445; color: white;")
             else:
-                self.main_layout.currentWidget().setStyleSheet("background-color: white; color: black;")
+                self.main_layout.currentWidget().setStyleSheet("background-color: #006ce0; color: #b3b3b3;")
 
     def show_error(self, title, message):
         msg = QMessageBox()
@@ -324,9 +348,37 @@ class UniversityApp(QMainWindow):
     def unset_loading_cursor(self):
         QApplication.restoreOverrideCursor()
 
+    def show_dev_info(self):
+        dev_widget = QWidget()
+        dev_layout = QVBoxLayout()
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = UniversityApp()
-    window.show()
-    sys.exit(app.exec())
+        dev_label = QLabel("Dev: DlzxnDev (3824б1ма1)")
+        dev_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        dev_label.setStyleSheet("font-size: 18px; font-weight: bold; color: #ffa500;")
+        dev_layout.addWidget(dev_label)
+
+        repo_label = QLabel("Repository: <a href='https://github.com/Dlzxn/UNN-lub'>https://github.com/Dlzxn/UNN-lub</a>")
+        repo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        repo_label.setStyleSheet("font-size: 16px; color: #0056b3;")
+        repo_label.setOpenExternalLinks(True)
+        dev_layout.addWidget(repo_label)
+
+        tg_label = QLabel("Tg: illgettomorow")
+        tg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        tg_label.setStyleSheet("font-size: 16px; color: #0056b3;")
+        dev_layout.addWidget(tg_label)
+
+        ver_label = QLabel("Version: 1.0")
+        ver_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        ver_label.setStyleSheet("font-size: 16px; color: #0056b3;")
+        dev_layout.addWidget(ver_label)
+
+        back_button = QPushButton("Назад")
+        back_button.setStyleSheet("padding: 10px; background-color: #0056b3; color: white; border-radius: 5px;")
+        back_button.clicked.connect(self.main_screen)
+        dev_layout.addWidget(back_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        dev_widget.setLayout(dev_layout)
+        self.main_layout.addWidget(dev_widget)
+        self.main_layout.setCurrentWidget(dev_widget)
+

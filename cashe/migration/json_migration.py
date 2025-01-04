@@ -24,7 +24,7 @@ class JsonMigration():
         :return: None
         """
         try:
-            with open("../bd/rasp.json", "w") as file:
+            with open("bd/rasp.json", "w") as file:
                 print("rasp.json openned")
                 json.dump(self.info, file)
                 file.close()
@@ -36,7 +36,7 @@ class JsonMigration():
 
     def json_load(self):
         try:
-            with open("../rasp.json", "r") as file:
+            with open("bd/rasp.json", "r") as file:
                 self.info = json.load(file)
 
         except Exception as err:

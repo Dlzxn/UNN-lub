@@ -17,21 +17,16 @@ class UnnRequest:
 
     def __new_format(self):
         student_number: int = int(self.login[1:])
-        # self.format: str = f'https://portal.unn.ru/ruzapi/schedule/student/{student_number-24073692}?start={self.start_date}&finish={self.end_date}&lng=1'
-        self.format: str = f'https://portal.unn.ru/ruzapi/schedule/student/{student_number - 24073692}?start=2024.12.09&finish=2024.12.15&lng=1'
+        self.format: str = f'https://portal.unn.ru/ruzapi/schedule/student/{student_number-24073692}?start={self.start_date}&finish={self.end_date}&lng=1'
+        # self.format: str = f'https://portal.unn.ru/ruzapi/schedule/student/{student_number - 24073692}?start=2024.12.09&finish=2024.12.15&lng=1'
         print(self.format)
 
     def proverka_user(self):
         try:
             asyncio.run(self.get_ruz())
-
-            if self.json_response == []:
-                return False
-            else:
-                return True
-
+            return True
         except Exception as e:
-            print(e)
+            print(f"[ERROR] str 34{e}")
             return False
 
 
