@@ -1,4 +1,13 @@
-import json, datetime
+import json, datetime, sys, os
+
+def resource_path(relative_path):
+    """Получить путь к ресурсу, работает как в упакованном, так и в обычном режиме"""
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    print(os.path.join(base_path, relative_path))
+
+    print(f"Текущая рабочая директория: {os.getcwd()}")
+
+    return os.path.join(base_path, relative_path)
 
 class AnalyticHtml:
     def __init__(self):
@@ -10,7 +19,7 @@ class AnalyticHtml:
 
 
     def load(self):
-        with open('bd/rasp.json', 'r', encoding='utf-8') as f:
+        with open(resource_path('bd/rasp.json'), 'r', encoding='utf-8') as f:
             self.data = json.load(f)
             print(self.data)
 

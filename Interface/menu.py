@@ -12,6 +12,10 @@ from analytic.analyhtml import AnalyticHtml
 def resource_path(relative_path):
     """Получить путь к ресурсу, работает как в упакованном, так и в обычном режиме"""
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    print(os.path.join(base_path, relative_path))
+
+    print(f"Текущая рабочая директория: {os.getcwd()}")
+
     return os.path.join(base_path, relative_path)
 
 class UniversityApp(QMainWindow):
@@ -20,13 +24,14 @@ class UniversityApp(QMainWindow):
         self.setWindowTitle("Личный кабинет студента ННГУ")
         self.setFixedSize(1200, 800)
 
-        self.setWindowIcon(QIcon(resource_path("icon/unn.png")))
+        self.setWindowIcon(QIcon(resource_path("Interface/icon/unn.png")))
 
         # Путь к теме и кешу
         self.theme_path = resource_path("theme.json")
         self.cache_path = resource_path("user.json")
         self.dark_mode = self.load_theme()
         self.update_theme()
+        print(f"Текущая рабочая директория: {os.getcwd()}")
 
         self.main_layout = QStackedLayout()
         self.central_widget = QWidget()
@@ -85,7 +90,7 @@ class UniversityApp(QMainWindow):
 
         # Логотип и заголовок
         logo_label = QLabel()
-        pixmap = QPixmap(resource_path("icon/unn_logo.png"))
+        pixmap = QPixmap(resource_path("Interface/icon/unn_logo.png"))
         if not pixmap.isNull():
             logo_label.setPixmap(pixmap)
             logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -95,6 +100,7 @@ class UniversityApp(QMainWindow):
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #fafcfc;")
         registration_layout.addWidget(title_label)
+        print(f"Текущая рабочая директория: {os.getcwd()}")
 
         # Поле для логина
         login_input = QLineEdit()
@@ -160,7 +166,7 @@ class UniversityApp(QMainWindow):
 
         # Логотип
         logo_label = QLabel()
-        pixmap = QPixmap(resource_path("icon/unn_logo.png"))
+        pixmap = QPixmap(resource_path("Interface/icon/unn_logo.png"))
         if not pixmap.isNull():
             logo_label.setPixmap(pixmap)
             logo_label.setFixedSize(50, 50)
