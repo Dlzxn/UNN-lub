@@ -1,7 +1,6 @@
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
-                             QVBoxLayout, QHBoxLayout, QLineEdit, QWidget, QFrame, QMessageBox, QStackedLayout, QScrollArea, QComboBox)
-from PyQt6.QtCore import Qt, QTimer, QDateTime
-from PyQt6.QtGui import QPixmap, QCursor, QIcon
+from PyQt6.QtWidgets import (QApplication, QMessageBox)
+from PyQt6.QtCore import Qt, QDateTime
+from PyQt6.QtGui import QCursor
 import sys
 import os
 import json

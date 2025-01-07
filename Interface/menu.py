@@ -1,12 +1,8 @@
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
-                             QVBoxLayout, QHBoxLayout, QLineEdit, QWidget, QFrame, QMessageBox, QStackedLayout, QScrollArea, QComboBox)
-from PyQt6.QtCore import Qt, QTimer, QDateTime
-from PyQt6.QtGui import QPixmap, QCursor, QIcon
-import sys
+from PyQt6.QtWidgets import (QMainWindow,
+                             QWidget, QStackedLayout)
+from PyQt6.QtGui import QIcon
 import os
-import json
 
-from analytic.analyhtml import AnalyticHtml
 
 from Interface.another import Another, resource_path
 from Interface.registration import Registration

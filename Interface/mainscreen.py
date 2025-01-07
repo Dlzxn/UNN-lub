@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
                              QVBoxLayout, QHBoxLayout, QLineEdit, QWidget, QFrame, QMessageBox, QStackedLayout, QScrollArea, QComboBox)
-from PyQt6.QtCore import Qt, QTimer, QDateTime
-from PyQt6.QtGui import QPixmap, QCursor, QIcon
+from PyQt6.QtCore import Qt, QTimer, QSize
+from PyQt6.QtGui import QPixmap, QIcon
 import sys
 import os
 import json
@@ -50,18 +50,34 @@ class MainWindow:
         header_layout.addWidget(time_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Кнопка переключения темы
-        theme_button = QPushButton("Тема")
+        theme_button = QPushButton()
+        theme_button.setIcon(QIcon(resource_path("icon/moon_icon.png")))
+        theme_button.setIconSize(QSize(25, 25))
         theme_button.setStyleSheet("padding: 5px; margin: 5px; color: white; border: true;")
         theme_button.clicked.connect(self.toggle_theme)
 
 
-        header_layout.addWidget(theme_button, alignment=Qt.AlignmentFlag.AlignRight)
-
         # Кнопка DEV
-        dev_button = QPushButton("DEV")
-        dev_button.setStyleSheet("padding: 5px; margin: 5px; background-color: #ffa500; color: white; border: none;")
+        dev_button = QPushButton()
+        dev_button.setIcon(QIcon(resource_path("icon/dev.png")))
+        dev_button.setIconSize(QSize(30, 30))
+        dev_button.setStyleSheet("padding: 5px; margin: 5px;color: white; border: none;")
         dev_button.clicked.connect(self.show_dev_info)
-        header_layout.addWidget(dev_button, alignment=Qt.AlignmentFlag.AlignRight)
+
+        # Кнопка выхода из профиля
+        logout_button = QPushButton("Выход")
+        logout_button.setStyleSheet("padding: 5px; margin: 5px; background-color: #d9534f; color: white; border: none;")
+        logout_button.clicked.connect(self.logout_user)
+
+        """container with buttons """
+        icon_layout = QHBoxLayout()
+        icon_layout.setSpacing(10)
+        icon_layout.addWidget(dev_button)
+        icon_layout.addWidget(theme_button)
+        icon_layout.addWidget(logout_button)
+
+        header_layout.addLayout(icon_layout)
+        header_layout.setAlignment(icon_layout, Qt.AlignmentFlag.AlignRight)
 
 
         main_layout.addLayout(header_layout)
@@ -100,12 +116,6 @@ class MainWindow:
             day_button.clicked.connect(lambda checked, d=day: self.show_day_schedule(d))
 
             schedule_layout.addWidget(day_button)
-
-        # Кнопка выхода из профиля
-        logout_button = QPushButton("Выход")
-        logout_button.setStyleSheet("padding: 5px; margin: 5px; background-color: #d9534f; color: white; border: none;")
-        logout_button.clicked.connect(self.logout_user)
-        header_layout.addWidget(logout_button, alignment=Qt.AlignmentFlag.AlignRight)
 
 
         main_layout.addWidget(schedule_frame)
