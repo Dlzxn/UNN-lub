@@ -2,6 +2,7 @@ import aiohttp
 import asyncio
 import datetime
 import os
+import sys
 from cashe.migration.json_migration import JsonMigration
 
 def resource_path(relative_path):
@@ -10,31 +11,51 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 class UnnRequest:
-    def __init__(self, login, tr=1):
+    """
+    Class UnnRequest
+    using for get information from API UNN
+    """
+    def __init__(self, login):
         self.login: str = login
         print(f'login: {self.login}')
 
         try:
             self.get_week_dates()
             self.__new_format()
-            asyncio.run(self.get_ruz())
+            self.main()
         except Exception as e:
             print(f"[ERROR] string 16 {e}")
 
+
     def __new_format(self):
+        """
+        def for generate dynamic URL
+        :return: None
+        """
         student_number: int = int(self.login[1:])
         self.format: str = f'https://portal.unn.ru/ruzapi/schedule/student/{student_number-24073692}?start={self.start_date}&finish={self.end_date}&lng=1'
-        print(self.format)
+        print(f'[INFO] {self.format}')
 
-    def proverka_user(self):
+
+    @staticmethod
+    def proverka_user(self) -> bool:
+        """
+        idenification user
+        :return:
+        """
         try:
-            asyncio.run(self.get_ruz())
+            asyncio.run(self.main())
             return True
         except Exception as e:
             print(f"[ERROR] str 34 {e}")
             return False
 
+
     async def get_ruz(self):
+        """
+        def for get info from API UNN
+        :return:
+        """
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(self.format) as response:
@@ -48,6 +69,10 @@ class UnnRequest:
             print(f"[ERROR] JSON Parsing or other issue: {e}")
 
     def get_week_dates(self):
+        """
+        def for getting info about start/finish week dates
+        :return: None
+        """
         # Получаем текущую дату
         today = datetime.date.today()
 
@@ -56,3 +81,19 @@ class UnnRequest:
 
         self.start_date = start_of_week.strftime("%Y.%m.%d")
         self.end_date = end_of_week.strftime("%Y.%m.%d")
+
+    async def mainloop(self):
+        """
+        create async tasks
+        :return:
+        """
+        task_one: asyncio.Task = asyncio.create_task(self.get_ruz())
+        await asyncio.gather(task_one)
+
+    def main(self):
+        """
+        start asyncio
+        :return:
+        """
+        asyncio.run(self.mainloop())
+
