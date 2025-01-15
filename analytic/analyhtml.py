@@ -21,7 +21,7 @@ class AnalyticHtml:
     def load(self):
         with open(resource_path('bd/rasp.json'), 'r', encoding='utf-8') as f:
             self.data = json.load(f)
-            print(self.data)
+            print(f'[INFO] self.data module analytic str 24 {self.data}')
 
     def analyse(self):
         self.rasp = {}

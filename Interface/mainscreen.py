@@ -7,16 +7,18 @@ import os
 import json
 
 from Interface.another import resource_path
+from parser.unn_request import UnnRequest
 
 
 class MainWindow:
     def main_screen(self):
         self.set_loading_cursor()
         try:
-            with open(resource_path("Interface/user.json"), 'r') as file:
+            with open(resource_path("analytic/cache/user.json"), 'r') as file:
                 data = json.load(file)
                 self.u = UnnRequest(data['username'])
         except Exception as er:
+
             print(f"[ERROR] Enternet Connection Error: {er}")
         self.unset_loading_cursor()
 
@@ -51,7 +53,7 @@ class MainWindow:
 
         # Кнопка переключения темы
         theme_button = QPushButton()
-        theme_button.setIcon(QIcon(resource_path("icon/moon_icon.png")))
+        theme_button.setIcon(QIcon(resource_path("Interface/icon/moon_icon.png")))
         theme_button.setIconSize(QSize(25, 25))
         theme_button.setStyleSheet("padding: 5px; margin: 5px; color: white; border: true;")
         theme_button.clicked.connect(self.toggle_theme)
@@ -59,7 +61,7 @@ class MainWindow:
 
         # Кнопка DEV
         dev_button = QPushButton()
-        dev_button.setIcon(QIcon(resource_path("icon/dev.png")))
+        dev_button.setIcon(QIcon(resource_path("Interface/icon/dev.png")))
         dev_button.setIconSize(QSize(30, 30))
         dev_button.setStyleSheet("padding: 5px; margin: 5px;color: white; border: none;")
         dev_button.clicked.connect(self.show_dev_info)

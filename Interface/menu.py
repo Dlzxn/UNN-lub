@@ -20,8 +20,8 @@ class UniversityApp(QMainWindow, Another, Registration, MainWindow, Schedule, De
         self.setWindowIcon(QIcon(resource_path("Interface/icon/unn.png")))
 
         # Путь к теме и кешу
-        self.theme_path = resource_path("theme.json")
-        self.cache_path = resource_path("user.json")
+        self.theme_path = resource_path("analytic/theme.json")
+        self.cache_path = resource_path("analytic/cache/user.json")
         self.dark_mode = self.load_theme()
         self.update_theme()
 

@@ -3,7 +3,8 @@ import asyncio
 import datetime
 import os
 import sys
-from cashe.migration.json_migration import JsonMigration
+from bd.json_migration import JsonMigration
+
 
 def resource_path(relative_path):
     """Получить путь к ресурсу, работает как в упакованном, так и в обычном режиме"""

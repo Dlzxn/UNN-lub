@@ -43,7 +43,7 @@ class JsonMigration():
         :return: None
         """
         try:
-            file_path = resource_path("bd/rasp.json")
+            file_path = resource_path("rasp.json")
             with open(file_path, "r") as file:
                 self.info = json.load(file)
         except Exception as err:

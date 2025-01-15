@@ -34,7 +34,7 @@ class Registration:
 
         #clouds png
         background_label = QLabel(registration_widget)
-        background_pixmap = QPixmap(resource_path("icon/clouds.png"))
+        background_pixmap = QPixmap(resource_path("Interface/icon/clouds.png"))
         background_label.setPixmap(background_pixmap)
         background_label.setScaledContents(True)
         background_label.setGeometry(0, 0, 1272, 284)
