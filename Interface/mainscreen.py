@@ -13,6 +13,7 @@ from parser.unn_request import UnnRequest
 class MainWindow:
     def main_screen(self):
         self.set_loading_cursor()
+
         try:
             with open(resource_path("analytic/cache/user.json"), 'r') as file:
                 data = json.load(file)
@@ -125,3 +126,25 @@ class MainWindow:
         self.main_layout.addWidget(main_widget)
         self.main_layout.setCurrentWidget(main_widget)
         self.update_theme()
+
+    def show_update_message(self):
+        # Показываем стильное окно с уведомлением о новой версии
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Icon.Information)
+        msg.setWindowTitle("Обновление доступно!")
+        msg.setText("<b>Доступна новая версия приложения!</b>")
+        msg.setInformativeText(
+            "Мы рекомендуем скачать последнюю версию, чтобы воспользоваться всеми "
+            "новыми функциями и улучшениями.<br>"
+            "<a href='https://github.com/Dlzxn/UNN-lub/releases'>Скачать новую версию</a>"
+        )
+        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg.button(QMessageBox.StandardButton.Ok).setText("Понял!")
+        msg.setTextFormat(Qt.TextFormat.RichText)  # Включение HTML-форматирования текста
+        msg.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)  # Для кликабельных ссылок
+
+        # Устанавливаем изображение слева
+        pixmap = QPixmap(resource_path("Interface/icon/unn.png"))  # Укажите путь к изображению
+        msg.setIconPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio))
+
+        msg.exec()

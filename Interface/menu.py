@@ -35,6 +35,9 @@ class UniversityApp(QMainWindow, Another, Registration, MainWindow, Schedule, De
         self.user_data = self.load_user_data()
         self.init_ui()
 
+        if not self.load_version(self.u.version):
+            self.show_update_message()
+
 
 
 

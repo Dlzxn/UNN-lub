@@ -29,6 +29,16 @@ class Another:
             return False
 
 
+    @staticmethod
+    def load_version(ver: str)-> bool:
+        with open(resource_path('../bd/VERSION.json'), 'r') as f:   ###   RESOURSE_PATH ++++++
+            data = json.load(f)
+            if data['version'] == ver:
+                return True
+            else:
+                return False
+
+
     def save_theme(self):
         try:
             with open(self.theme_path, 'w') as f:

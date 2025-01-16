@@ -83,13 +83,27 @@ class UnnRequest:
         self.start_date = start_of_week.strftime("%Y.%m.%d")
         self.end_date = end_of_week.strftime("%Y.%m.%d")
 
+    async def get_version(self):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get("http://www.unnapi.ru/version") as response:
+                    self.unnapi = await response.json()
+                    print(self.unnapi)
+                    self.version = self.unnapi['version']
+                    print(f'[INFO] Version: {self.version}')
+        except aiohttp.ClientError as e:
+            print(f'[ERROR] Network issue: {e}')
+        except Exception as e:
+            print(f"[ERROR] other issue(str96): {e}")
+
     async def mainloop(self):
         """
         create async tasks
         :return:
         """
         task_one: asyncio.Task = asyncio.create_task(self.get_ruz())
-        await asyncio.gather(task_one)
+        task_two: asyncio.Task = asyncio.create_task(self.get_version())
+        await asyncio.gather(task_one, task_two)
 
     def main(self):
         """
