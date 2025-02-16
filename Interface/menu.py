@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import (QMainWindow,
                              QWidget, QStackedLayout)
 from PyQt6.QtGui import QIcon
-import os
+import os, time
 
 
 from Interface.another import Another, resource_path

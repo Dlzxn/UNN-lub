@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.1
+Name=UNN
+Comment=Расписание для студента ННГУ
+Exec=/usr/local/bin/MyApp
+Icon=/usr/local/share/icons/hicolor/256x256/apps/unn.png
+Terminal=false
+Type=Application
+Categories=Education;Utility;

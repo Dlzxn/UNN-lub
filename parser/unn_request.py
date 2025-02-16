@@ -1,8 +1,11 @@
 import aiohttp
 import asyncio
-import datetime
+import datetime as dt
 import os
 import sys
+from datetime import datetime, timedelta
+
+
 from bd.json_migration import JsonMigration
 
 
@@ -26,6 +29,29 @@ class UnnRequest:
             self.main()
         except Exception as e:
             print(f"[ERROR] string 16 {e}")
+
+    def init__next(self):
+        self.login: str = self.login
+        print(f'login: {self.login}')
+
+        try:
+            self.get_next_week_date(self.start_date)
+            self.__new_format()
+            self.main()
+        except Exception as e:
+            print(f"[ERROR] string 42 {e}")
+
+
+    def init__previous(self):
+        self.login: str = self.login
+        print(f'login: {self.login}')
+
+        try:
+            self.get_previous_week_date(self.start_date)
+            self.__new_format()
+            self.main()
+        except Exception as e:
+            print(f"[ERROR] string 54 {e}")
 
 
     def __new_format(self):
@@ -75,10 +101,10 @@ class UnnRequest:
         :return: None
         """
         # Получаем текущую дату
-        today = datetime.date.today()
+        today = dt.date.today()
 
-        start_of_week = today - datetime.timedelta(days=today.weekday())  # Понедельник текущей недели
-        end_of_week = start_of_week + datetime.timedelta(days=6)  # Воскресенье текущей недели
+        start_of_week = today - dt.timedelta(days=today.weekday())  # Понедельник текущей недели
+        end_of_week = start_of_week + dt.timedelta(days=6)  # Воскресенье текущей недели
 
         self.start_date = start_of_week.strftime("%Y.%m.%d")
         self.end_date = end_of_week.strftime("%Y.%m.%d")
@@ -111,4 +137,48 @@ class UnnRequest:
         :return:
         """
         asyncio.run(self.mainloop())
+
+    def get_next_week_date(self, start_date):
+        """
+        Вычисляет начало и конец следующей недели от заданной даты и сохраняет в self.
+
+        :param start_date: Дата в формате 'год.месяц.день' (например, '2025.01.15').
+        """
+        from datetime import datetime, timedelta
+
+        # Преобразуем строку в объект даты
+        date_obj = datetime.strptime(start_date, "%Y.%m.%d")
+
+        # Добавляем 7 дней для начала следующей недели
+        start_of_next_week = date_obj + timedelta(weeks=1)
+
+        # Считаем конец следующей недели
+        end_of_next_week = start_of_next_week + timedelta(days=6)
+
+        # Сохраняем в self
+        self.start_date = start_of_next_week.strftime("%Y.%m.%d")
+        self.end_date = end_of_next_week.strftime("%Y.%m.%d")
+
+    def get_previous_week_date(self, start_date):
+        """
+        Вычисляет начало и конец прошлой недели от заданной даты и сохраняет в self.
+
+        :param start_date: Дата в формате 'год.месяц.день' (например, '2025.01.15').
+        """
+        from datetime import datetime, timedelta
+
+        # Преобразуем строку в объект даты
+        date_obj = datetime.strptime(start_date, "%Y.%m.%d")
+
+        # Вычитаем 7 дней для начала предыдущей недели
+        start_of_previous_week = date_obj - timedelta(weeks=1)
+
+        # Считаем конец предыдущей недели
+        end_of_previous_week = start_of_previous_week + timedelta(days=6)
+
+        # Сохраняем в self
+        self.start_date = start_of_previous_week.strftime("%Y.%m.%d")
+        self.end_date = end_of_previous_week.strftime("%Y.%m.%d")
+
+
 

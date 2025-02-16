@@ -1,4 +1,5 @@
-import json, datetime, sys, os
+import json, datetime as dt, sys, os
+from datetime import datetime, timedelta
 
 def resource_path(relative_path):
     """Получить путь к ресурсу, работает как в упакованном, так и в обычном режиме"""
@@ -19,7 +20,7 @@ class AnalyticHtml:
 
 
     def load(self):
-        with open(resource_path('bd/rasp.json'), 'r', encoding='utf-8') as f:
+        with open(resource_path('../bd/bd/rasp.json'), 'r', encoding='utf-8') as f:
             self.data = json.load(f)
             print(f'[INFO] self.data module analytic str 24 {self.data}')
 
@@ -28,25 +29,16 @@ class AnalyticHtml:
         print(len(self.data))
         self.rasp = []
         for item in self.data:
-            # print(item["date"])
-            # if item["date"] not in self.rasp:
-            #     sp = [item["dayOfWeekString"], item["auditorium"], item["building"], item["discipline"],
-            #           item["kindOfWork"], item["lecturer"], item["beginLesson"], item["endLesson"]]
-            #     self.rasp[item["date"]] = sp
-            # else:
-            #     sp += [item["dayOfWeekString"], item["auditorium"], item["building"], item["discipline"],
-            #           item["kindOfWork"], item["lecturer"], item["beginLesson"], item["endLesson"]]
-            #     self.rasp[item["date"]] += sp
             self.rasp.append([item["dayOfWeekString"], item["auditorium"], item["building"], item["discipline"],
                       item["kindOfWork"], item["lecturer"], item["beginLesson"], item["endLesson"]])
         print(self.rasp)
 
     def get_week_dates(self):
         # Получаем текущую дату
-        today = datetime.date.today()
+        today = dt.date.today()
 
-        start_of_week = today - datetime.timedelta(days=today.weekday())  # Понедельник текущей недели
-        end_of_week = start_of_week + datetime.timedelta(days=6)  # Воскресенье текущей недели
+        start_of_week = today - dt.timedelta(days=today.weekday())  # Понедельник текущей недели
+        end_of_week = start_of_week + dt.timedelta(days=6)  # Воскресенье текущей недели
 
         self.start_date = start_of_week.strftime("%Y.%m.%d")
         self.end_date = end_of_week.strftime("%Y.%m.%d")

@@ -7,8 +7,10 @@ beautifulsoup4==4.12.3
 frozenlist==1.5.0
 idna==3.10
 multidict==6.1.0
+ordered-set==4.1.0
 packaging==24.2
 propcache==0.2.1
+pyinstaller==6.11.1
 pyinstaller-hooks-contrib==2024.11
 PyQt6==6.8.0
 PyQt6-Qt6==6.8.1
@@ -16,3 +18,4 @@ PyQt6_sip==13.9.1
 setuptools==75.6.0
 soupsieve==2.6
 yarl==1.18.3
+zstandard==0.23.0

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=UNN
+Comment=Расписание ННГУ
+Exec=sh -c 'cd "$(dirname "$(readlink -f $0)")" && ./MyApp %U'
+Icon=UNN
+Terminal=false
+Type=Application
+Categories=Education;Utility;
